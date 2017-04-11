@@ -1,0 +1,20 @@
+# Source: https://developer.amazon.com/blogs/post/Tx1UE9W1NQ0GYII/Publishing-Your-Skill-Code-to-Lambda-via-the-Command-Line-Interface
+
+if [ "$2" == "" ]; then
+  echo "You must provide a directory to publish and a Lambda function name to publish to"
+  echo; echo "EXAMPLE:"
+  echo "  $0 ./labs/HelloWorld/src MyLambdaFunction"
+  exit 1
+fi
+
+ZIPFILE=/tmp/lambda-publish-zipfile.`date +%Y%m%d-%H%M%S`.zip
+if [ -e $ZIPFILE ]; then rm $ZIPFILE; fi
+cd $1 && \
+echo "Creating temp zipfile: $ZIPFILE" && \
+zip $ZIPFILE -X -r . && \
+cd .. && \
+echo; echo "Uploading zipfile: $ZIPFILE to $2" && \
+aws lambda update-function-code --function-name $2 --zip-file fileb://$ZIPFILE
+
+echo; echo "Removing temp zipfile"
+rm $ZIPFILE
